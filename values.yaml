@@ -1,0 +1,190 @@
+# jenkinsPassword: "admin"
+controller:
+  serviceType: NodePort
+  nodePort: 30000
+  jenkinsUrl: http://192.168.105.5:30000
+  jenkinsUser: admin
+  persistence:
+    enabled: true
+  initializeOnce: true
+  installPlugins:
+    - kubernetes:latest
+    - kubernetes-credentials:latest
+    - git:latest
+    - job-dsl:latest
+    - gradle:latest
+    - docker:latest
+  JCasC:
+    defaultConfig: false
+    configScripts:
+      main-config: |
+        jenkins:
+          agentProtocols:
+          - "JNLP4-connect"
+          - "Ping"
+          disabledAdministrativeMonitors:
+          - "jenkins.monitor.JavaVersionRecommendationAdminMonitor-11-2024-09-30-WARNING"
+          labelAtoms:
+          - name: "built-in"
+          - name: "kubeagent"
+          myViewsTabBar: "standard"
+          primaryView:
+            all:
+              name: "all"
+          quietPeriod: 5
+          remotingSecurity:
+            enabled: true
+          scmCheckoutRetryCount: 0
+          slaveAgentPort: 50000
+          updateCenter:
+            sites:
+            - id: "default"
+              url: "https://updates.jenkins.io/update-center.json"
+          views:
+          - all:
+              name: "all"
+          viewsTabBar: "standard"
+        globalCredentialsConfiguration:
+          configuration:
+            providerFilter: "none"
+            typeFilter: "none"
+        unclassified:
+          buildDiscarders:
+            configuredBuildDiscarders:
+            - "jobBuildDiscarder"
+          enrichedSummaryConfig:
+            enrichedSummaryEnabled: false
+            httpClientDelayBetweenRetriesInSeconds: 1
+            httpClientMaxRetries: 3
+            httpClientTimeoutInSeconds: 1
+          fingerprints:
+            fingerprintCleanupDisabled: false
+            storage: "file"
+          injectionConfig:
+            allowUntrusted: false
+            checkForBuildAgentErrors: false
+            enabled: false
+            enforceUrl: false
+            injectCcudExtension: false
+            injectMavenExtension: false
+          mailer:
+            charset: "UTF-8"
+            useSsl: false
+            useTls: false
+          pollSCM:
+            pollingThreadCount: 10
+          scmGit:
+            addGitTagAction: false
+            allowSecondFetch: false
+            createAccountBasedOnEmail: false
+            disableGitToolChooser: false
+            globalConfigEmail: "someone@gmail.com"
+            globalConfigName: "yourname"
+            hideCredentials: false
+            showEntireCommitSummaryInChanges: false
+            useExistingAccountWithSameEmail: false
+        tool:
+          git:
+            installations:
+            - home: "git"
+              name: "Default"
+          gradle:
+            installations:
+            - name: "gradle"
+              properties:
+              - installSource:
+                  installers:
+                  - gradleInstaller:
+                      id: "8.4"
+          maven:
+            installations:
+            - name: "maven"
+              properties:
+              - installSource:
+                  installers:
+                  - maven:
+                      id: "3.9.5"
+          dockerTool:
+            installations:
+            - name: "docker"
+          mavenGlobalConfig:
+            globalSettingsProvider: "standard"
+            settingsProvider: "standard"
+          pipelineMaven:
+            daoClass: "org.jenkinsci.plugins.pipeline.maven.dao.PipelineMavenPluginNullDao"
+            globalTraceability: false
+            triggerDownstreamUponResultAborted: false
+            triggerDownstreamUponResultFailure: false
+            triggerDownstreamUponResultNotBuilt: false
+            triggerDownstreamUponResultSuccess: true
+            triggerDownstreamUponResultUnstable: false
+
+      kube-config: |
+        jenkins:
+          clouds:
+          - kubernetes:
+              containerCap: 10
+              containerCapStr: "10"
+              jenkinsTunnel: "jenkins-agent.jenkins.svc.cluster.local:50000"
+              jenkinsUrl: "http://jenkins.jenkins.svc.cluster.local:8080"
+              name: "kubernetes"
+              namespace: "jenkins"
+              podLabels:
+              - key: "jenkins/jenkins-jenkins-agent"
+                value: "true"
+              skipTlsVerify: true
+              templates:
+              - containers:
+                - image: "maven:3.8.6-openjdk-8"
+                  livenessProbe:
+                    failureThreshold: 0
+                    initialDelaySeconds: 0
+                    periodSeconds: 0
+                    successThreshold: 0
+                    timeoutSeconds: 0
+                  name: "maven"
+                  workingDir: "/home/jenkins/agent"
+                - image: "gradle:8.4.0-jdk8"
+                  livenessProbe:
+                    failureThreshold: 0
+                    initialDelaySeconds: 0
+                    periodSeconds: 0
+                    successThreshold: 0
+                    timeoutSeconds: 0
+                  name: "gradle"
+                  workingDir: "/home/jenkins/agent"
+                - image: "docker:latest"
+                  livenessProbe:
+                    failureThreshold: 0
+                    initialDelaySeconds: 0
+                    periodSeconds: 0
+                    successThreshold: 0
+                    timeoutSeconds: 0
+                  name: "docker"
+                  workingDir: "/home/jenkins/agent"
+                id: "382039d7-21dd-4c38-81e0-40322ff28af4"
+                label: "kubeagent"
+                name: "kube-agent"
+                namespace: "jenkins"
+                nodeUsageMode: "NORMAL"
+                yamlMergeStrategy: "override"
+      
+      java-hello-world: |
+        jobs:
+        - script: |
+            pipelineJob('java-hello-world') {
+              definition {
+                cpsScm {
+                  scm {
+                    git {
+                      remote {
+                        url('https://github.com/aruandre/java-hello-world.git')
+                      }
+                      branch('main')
+                    }
+                  }
+                  lightweight()
+                  scriptPath('jenkins/Jenkinsfile')
+                }
+              }
+            }

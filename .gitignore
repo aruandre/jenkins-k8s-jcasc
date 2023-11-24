@@ -1,0 +1,6 @@
+bla/
+doc.txt
+
+.DS_Store
+.terraform*
+terraform.*

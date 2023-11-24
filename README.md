@@ -1,0 +1,1 @@
+Jenkins on k8s (minikube) with Jenkins set up as code (JCasC) and infra built with Terraform and Helm.
