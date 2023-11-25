@@ -1,20 +1,24 @@
-# jenkinsPassword: "admin"
 controller:
   serviceType: NodePort
   nodePort: 30000
-  jenkinsUrl: http://192.168.105.5:30000
+  #jenkinsUrl: http://192.168.105.9:30000
   jenkinsUser: admin
   persistence:
     enabled: true
-  initializeOnce: true
+  initializeOnce: false
+  installLatestSpecifiedPlugins: true
   installPlugins:
+    - configuration-as-code:latest
     - kubernetes:latest
     - kubernetes-credentials:latest
+    - workflow-aggregator:latest
     - git:latest
     - job-dsl:latest
     - gradle:latest
-    - docker:latest
+    - pipeline-maven:latest
+    # - docker-plugin:latest
   JCasC:
+    enabled: true
     defaultConfig: false
     configScripts:
       main-config: |
@@ -36,6 +40,22 @@ controller:
             enabled: true
           scmCheckoutRetryCount: 0
           slaveAgentPort: 50000
+          securityRealm:
+            local:
+              allowsSignup: false
+              enableCaptcha: false
+              users:
+              - id: "admin"
+                name: "Jenkins Admin"
+                password: "admin"
+                properties:
+                - "apiToken"
+                - "mailer"
+                - "myView"
+                - preferredProvider:
+                    providerId: "default"
+                - "timezone"
+                - "experimentalFlags"
           updateCenter:
             sites:
             - id: "default"
@@ -104,20 +124,9 @@ controller:
                   installers:
                   - maven:
                       id: "3.9.5"
-          dockerTool:
-            installations:
-            - name: "docker"
           mavenGlobalConfig:
             globalSettingsProvider: "standard"
             settingsProvider: "standard"
-          pipelineMaven:
-            daoClass: "org.jenkinsci.plugins.pipeline.maven.dao.PipelineMavenPluginNullDao"
-            globalTraceability: false
-            triggerDownstreamUponResultAborted: false
-            triggerDownstreamUponResultFailure: false
-            triggerDownstreamUponResultNotBuilt: false
-            triggerDownstreamUponResultSuccess: true
-            triggerDownstreamUponResultUnstable: false
 
       kube-config: |
         jenkins:
@@ -169,10 +178,10 @@ controller:
                 nodeUsageMode: "NORMAL"
                 yamlMergeStrategy: "override"
       
-      java-hello-world: |
+      maven-hello-world: |
         jobs:
         - script: |
-            pipelineJob('java-hello-world') {
+            pipelineJob('maven-hello-world') {
               definition {
                 cpsScm {
                   scm {
@@ -185,6 +194,26 @@ controller:
                   }
                   lightweight()
                   scriptPath('jenkins/Jenkinsfile')
+                }
+              }
+            }
+
+      gradle-hello-world: |
+        jobs:
+        - script: |
+            pipelineJob('gradle-hello-world') {
+              definition {
+                cpsScm {
+                  scm {
+                    git {
+                      remote {
+                        url('https://github.com/aruandre/gradle-sample-app.git')
+                      }
+                      branch('main')
+                    }
+                  }
+                  lightweight()
+                  scriptPath('Jenkinsfile')
                 }
               }
             }

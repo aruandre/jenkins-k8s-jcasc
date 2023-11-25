@@ -10,6 +10,6 @@ resource "helm_release" "jenkins" {
   chart      = var.service_name
   namespace  = var.service_name
   values = [
-    "${file("values.yaml")}"
+    "${file("jenkins-values.yaml")}"
   ]
 }
