@@ -23,6 +23,7 @@ controller:
     configScripts:
       main-config: |
         jenkins:
+          numExecutors: 0
           agentProtocols:
           - "JNLP4-connect"
           - "Ping"
