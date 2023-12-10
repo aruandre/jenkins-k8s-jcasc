@@ -1,0 +1,39 @@
+jobs:
+  - script: >
+      folder('Tests')
+
+  - script: |
+      pipelineJob('maven-hello-world') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('https://github.com/aruandre/java-hello-world.git')
+                }
+                branch('main')
+              }
+            }
+            lightweight()
+            scriptPath('jenkins/Jenkinsfile')
+          }
+        }
+      }
+
+  - script: |
+      pipelineJob('gradle-hello-world') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('https://github.com/aruandre/gradle-sample-app.git')
+                }
+                branch('main')
+              }
+            }
+            lightweight()
+            scriptPath('Jenkinsfile')
+          }
+        }
+      }

@@ -8,8 +8,24 @@ resource "helm_release" "jenkins" {
   name       = var.service_name
   repository = "https://charts.jenkins.io/"
   chart      = var.service_name
+  version    = "4.9.1"
   namespace  = var.service_name
   values = [
-    "${file("jenkins-values.yaml")}"
+    "${file("templates/jenkins-values.yaml")}"
   ]
+}
+
+# https://blog.devops.dev/jenkins-configuration-as-code-alternative-approach-981bc302d862
+resource "kubernetes_config_map" "jcasc_jobs" {
+  metadata {
+    name = "jcasc-jobs"
+    labels = {
+      jenkins-jenkins-config = "true"
+    }
+    namespace = var.service_name
+  }
+
+  data = {
+    "jcasc-jobs.yaml" = file("templates/jobs.yaml")
+  }
 }

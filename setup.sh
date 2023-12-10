@@ -2,9 +2,10 @@
 
 minikube_min_version="1.32.0"
 terraform_min_version="1.5.0"
-minikube_ip="192.168.58.10"
-memory="4096"
-cpus="2"
+
+serviceType=${1:-"NodePort"} # NodePort or LoadBalancer
+memory=${2:-"4096"}
+cpus=${3:-"2"}
 
 # Detect host OS and install required pacakges
 # Currently supports only linux (deb) and MacOS
@@ -28,7 +29,7 @@ case $(uname | tr '[:upper:]' '[:lower:]') in
     fi
 
     minikube version | head -1
-    minikube start --driver qemu --memory $memory --cpus $cpus
+    minikube start --driver qemu --memory "$memory" --cpus "$cpus"
     # minikube dashboard
 
     echo "Checking if terraform exists..."
@@ -67,7 +68,7 @@ case $(uname | tr '[:upper:]' '[:lower:]') in
     fi
 
     minikube version
-    minikube start --driver docker --memory $memory --cpus $cpus
+    minikube start --driver docker --memory "$memory" --cpus "$cpus"
     #minikube dashboard
 
     echo "Checking if terraform exists..."
@@ -87,18 +88,33 @@ case $(uname | tr '[:upper:]' '[:lower:]') in
 
     terraform version | head -1
   ;;
-#   solaris*) echo "SOLARIS" ;;
-#   bsd*)     echo "BSD" ;;
-#   msys*)    echo "WINDOWS" ;;
-#   cygwin*)  echo "ALSO WINDOWS" ;;
-  *)        echo "Not supported OS type: $OSTYPE" ;;
+  *)
+    echo "Not supported OS type: $OSTYPE"
+  ;;
 esac
 
-# Deploy
+
+if [ "$serviceType" = "LoadBalancer" ]; then
+    minikube addons enable ingress
+    # connect to LoadBalancer service type
+    # sudo minikube tunnel -c
+    # # TODO: parameterize host name
+    # # first startup fails as ingress healthcheck fails because the service is not yet ready -> 
+    # echo "$(minikube ip) jenkins.andre.home" | sudo tee -a /etc/hosts
+fi
+
+# Deploy Terraform
 terraform init
 terraform apply -auto-approve
 
-minikube service jenkins -n jenkins
+if [ "$serviceType" = "NodePort" ]; then
+    minikube service jenkins -n jenkins
+else
+    sudo minikube tunnel -c
+    # TODO: parameterize host name
+    # first startup fails as ingress healthcheck fails because the service is not yet ready -> 
+    echo "$(minikube ip) jenkins.andre.home" | sudo tee -a /etc/hosts
+fi
 
 echo "Jenkins admin user: $(kubectl get secret jenkins -n jenkins -o jsonpath='{.data.jenkins-admin-user}' | base64 -d)"
 echo "Jenkins admin password: $(kubectl get secret jenkins -n jenkins -o jsonpath='{.data.jenkins-admin-password}' | base64 -d)"

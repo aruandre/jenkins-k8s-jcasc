@@ -2,6 +2,12 @@ controller:
   serviceType: NodePort
   nodePort: 30000
   #jenkinsUrl: http://192.168.105.9:30000
+  # jenkinsUrlProtocol: https
+  # serviceType: LoadBalancer
+  # ingress:
+  #   enabled: true
+  #   hostName: jenkins.andre.home
+  #   path: /
   jenkinsUser: admin
   persistence:
     enabled: true
@@ -33,6 +39,7 @@ controller:
           - name: "built-in"
           - name: "kubeagent"
           myViewsTabBar: "standard"
+          noUsageStatistics: true
           primaryView:
             all:
               name: "all"
@@ -181,43 +188,3 @@ controller:
                 namespace: "jenkins"
                 nodeUsageMode: "NORMAL"
                 yamlMergeStrategy: "override"
-      
-      maven-hello-world: |
-        jobs:
-        - script: |
-            pipelineJob('maven-hello-world') {
-              definition {
-                cpsScm {
-                  scm {
-                    git {
-                      remote {
-                        url('https://github.com/aruandre/java-hello-world.git')
-                      }
-                      branch('main')
-                    }
-                  }
-                  lightweight()
-                  scriptPath('jenkins/Jenkinsfile')
-                }
-              }
-            }
-
-      gradle-hello-world: |
-        jobs:
-        - script: |
-            pipelineJob('gradle-hello-world') {
-              definition {
-                cpsScm {
-                  scm {
-                    git {
-                      remote {
-                        url('https://github.com/aruandre/gradle-sample-app.git')
-                      }
-                      branch('main')
-                    }
-                  }
-                  lightweight()
-                  scriptPath('Jenkinsfile')
-                }
-              }
-            }
