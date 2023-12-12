@@ -11,7 +11,7 @@ resource "helm_release" "jenkins" {
   version    = "4.9.1"
   namespace  = var.service_name
   values = [
-    "${file("templates/jenkins-values.yaml")}"
+    "${file("templates/jenkins-values.yml")}"
   ]
 }
 
@@ -26,7 +26,7 @@ resource "kubernetes_config_map" "jcasc_jobs" {
   }
 
   data = {
-    "jcasc-jobs.yaml" = file("templates/jobs.yaml")
+    "jcasc-jobs.yaml" = file("templates/jobs.yml")
   }
 }
 
@@ -40,6 +40,6 @@ resource "kubernetes_config_map" "jcasc_kubernetes_config" {
   }
 
   data = {
-    "jcasc-kubernetes-config.yaml" = file("templates/kubernetes-config.yaml")
+    "jcasc-kubernetes-config.yaml" = file("templates/kubernetes-config.yml")
   }
 }
