@@ -3,6 +3,9 @@ Jenkins on k8s (minikube) with Jenkins set up as code using the JCasC plugin, in
 Jenkins uses a custom built image which has required plugins pre-installed. The image is built using Github Actions and pushed to Dockerhub.
 
 Some TODOs:
-* authentication
+* authentication & authorization
 * SSL and https
+* monitoring
+* logging
+* image scanning
 * shared library
