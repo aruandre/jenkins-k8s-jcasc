@@ -29,3 +29,17 @@ resource "kubernetes_config_map" "jcasc_jobs" {
     "jcasc-jobs.yaml" = file("templates/jobs.yaml")
   }
 }
+
+resource "kubernetes_config_map" "jcasc_kubernetes_config" {
+  metadata {
+    name = "jcasc-kubernetes-config"
+    labels = {
+      jenkins-jenkins-config = "true"
+    }
+    namespace = var.service_name
+  }
+
+  data = {
+    "jcasc-kubernetes-config.yaml" = file("templates/kubernetes-config.yaml")
+  }
+}
