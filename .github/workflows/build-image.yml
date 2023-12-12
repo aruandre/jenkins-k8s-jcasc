@@ -1,13 +1,10 @@
-name: Build and push Docker image
+name: Build and push Docker image for Jenkins
 
 on:
   push:
     paths:
-      - 'Dockerfile'
-      - 'plugins.txt'
+      - 'docker/**'
   workflow_dispatch:
-  release:
-    types: [created]
 
 jobs:
   docker:
@@ -25,10 +22,6 @@ jobs:
           # generate Docker tags based on the following events/attributes
           tags: |
             type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
             type=sha
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -43,7 +36,10 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          file: docker/Dockerfile
+          context: docker
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+
+          # Test run image
