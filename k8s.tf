@@ -11,11 +11,10 @@ resource "helm_release" "jenkins" {
   version    = "4.9.1"
   namespace  = var.service_name
   values = [
-    "${file("templates/jenkins-values.yml")}"
+    "${file("templates/jenkins.yml")}"
   ]
 }
 
-# https://blog.devops.dev/jenkins-configuration-as-code-alternative-approach-981bc302d862
 resource "kubernetes_config_map" "jcasc_jobs" {
   metadata {
     name = "jcasc-jobs"
@@ -40,6 +39,6 @@ resource "kubernetes_config_map" "jcasc_kubernetes_config" {
   }
 
   data = {
-    "jcasc-kubernetes-config.yaml" = file("templates/kubernetes-config.yml")
+    "jcasc-kubernetes-config.yaml" = file("templates/kubernetes.yml")
   }
 }

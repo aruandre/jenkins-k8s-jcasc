@@ -9,7 +9,8 @@ RUN jenkins-plugin-cli -f /usr/share/jenkins/plugins.txt
 
 USER root
 RUN apk update \
-    && apk --no-cache add -q ca-certificates curl gnupg \
+    && apk add --no-cache -q ca-certificates curl gnupg \
+    && apk upgrade \
     && rm -rf /var/cache/apk/*
 
 USER jenkins
