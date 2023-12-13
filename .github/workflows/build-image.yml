@@ -1,4 +1,4 @@
-name: Build and push Docker image
+name: Build and push and scan Docker image
 
 on:
   push:
@@ -7,7 +7,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  docker:
+  build:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,9 +46,23 @@ jobs:
         with:
           file: docker/Dockerfile
           context: docker
-          cache-from: type=registry,ref=andrar/jenkins:main
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: andrar/jenkins:main
+          format: sarif
+          output: trivy-results.sarif
+          # severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: trivy-results.sarif
 
       # Test run image
