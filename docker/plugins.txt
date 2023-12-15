@@ -7,3 +7,4 @@ job-dsl:1.87
 gradle:2.9
 pipeline-maven:1362.vee39a_d4b_02b_1
 docker-plugin:1.5
+prometheus:2.4.1
