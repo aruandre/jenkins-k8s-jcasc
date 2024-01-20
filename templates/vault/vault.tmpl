@@ -1,0 +1,51 @@
+global:
+  enabled: true
+  tlsDisable: false
+
+server:
+  affinity: "" # Commenting out or setting as empty will allow deployment to single node services such as Minikube
+  ha:
+    enabled: true
+    replicas: 1
+    raft:
+      enabled: true
+      setNodeId: true
+
+      config: |
+        ui = true
+
+        listener "tcp" {
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+          tls_disable = false
+        }
+
+  dataStorage:
+    enabled: true
+  auditStorage:
+    enabled: true
+
+  # volumes:
+
+
+ui:
+  enabled: true
+  serviceType: NodePort
+  serviceNodePort: ${nodePort}
+  externalPort: 8200
+
+  
+injector:
+  enabled: true
+  # Use the Vault K8s Image https://github.com/hashicorp/vault-k8s/
+  image:
+    repository: "hashicorp/vault-k8s"
+    tag: "latest"
+
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 256Mi
+      cpu: 250m
