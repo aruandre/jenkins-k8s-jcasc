@@ -1,0 +1,73 @@
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: fluentd-config
+# data:
+  fluent.conf: |
+    <source>
+      @type tail
+      @id in_tail_kube_apiserver
+      multiline_flush_interval 5s
+      path /var/log/pods/*kube-apiserver*/kube-apiserver/*.log
+      pos_file "#{File.join('/data/fluentd/', ENV.fetch('FLUENT_POS_EXTRA_DIR', ''), 'fluentd-kube-apiserver.log.pos')}"
+      tag kube-apiserver
+      <parse>
+        @type json
+        time_type string 
+        time_format %Y-%m-%dT%H:%M:%S.%N%z
+      </parse>
+    </source>
+
+    <source>
+      @id fluentd-containers.log
+      @type tail
+      path /var/log/containers/*.log
+      pos_file /var/log/es-containers.log.pos
+      time_format %Y-%m-%dT%H:%M:%S.%NZ
+      tag raw.kubernetes.*
+      read_from_head true
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key time
+          time_format %Y-%m-%dT%H:%M:%S.%NZ
+        </pattern>
+        <pattern>
+          format /^(?<time>.+) (?<stream>stdout|stderr) [^ ]* (?<log>.*)$/
+          time_format %Y-%m-%dT%H:%M:%S.%N%:z
+        </pattern>
+      </parse>
+    </source>
+
+    <match **>
+      @type stdout
+    </match>
+
+    # Enriches records with Kubernetes metadata
+    <filter kubernetes.**>
+      @type kubernetes_metadata
+    </filter>
+
+    <match **>
+      @id elasticsearch
+      @type elasticsearch
+      @log_level info
+      include_tag_key true
+      host opensearch-cluster-master.opensearch
+      port 9200
+      logstash_format true
+      <buffer>
+        @type file
+        path /var/log/fluentd-buffers/kubernetes.system.buffer
+        flush_mode interval
+        retry_type exponential_backoff
+        flush_thread_count 2
+        flush_interval 5s
+        retry_forever
+        retry_max_interval 30
+        chunk_limit_size 2M
+        queue_limit_length 8
+        overflow_action block
+      </buffer>
+    </match>

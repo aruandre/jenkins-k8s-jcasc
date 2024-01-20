@@ -10,9 +10,9 @@ resource "helm_release" "prometheus" {
   chart      = "prometheus"
   version    = var.prometheus_chart_version
   namespace  = kubernetes_namespace.monitoring.id
-    values = [
-      "${file("${path.module}/templates/prometheus/prometheus.yml")}"
-    ]
+  values = [
+    "${file("${path.module}/templates/prometheus/prometheus.yml")}"
+  ]
 }
 
 resource "helm_release" "grafana" {
