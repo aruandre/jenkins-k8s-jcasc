@@ -4,9 +4,10 @@ Jenkins uses a custom built image which has required plugins pre-installed. The 
 
 For monitoring purposes Prometheus and Grafana are deployed onto a separate "monitoring" namespace. Grafana sets up two dashboards for Kubernetes cluster and Jenkins respectivelly.
 
+Logging is utilized using Fluent-bit running as a daemonset and pushing logs to OpenSearch which also runs in the same cluster.
+
 Some TODOs:
 * password management
   * authentication & authorization
 * SSL and https
-* logging
 * shared library

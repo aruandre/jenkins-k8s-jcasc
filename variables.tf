@@ -42,11 +42,16 @@ variable "grafana_chart_version" {
   default     = "7.0.17"
 }
 
-# OpenSearch
-variable "opensearch_namespace" {
+# Logging
+variable "logging_namespace" {
   type        = string
-  description = "OpenSearch namespace name"
-  default     = "opensearch"
+  description = "Logging namespace name"
+  default     = "logging"
+}
+
+variable "opensearch_name" {
+  type    = string
+  default = "opensearch"
 }
 
 variable "opensearch_chart_version" {
@@ -71,4 +76,15 @@ variable "opensearch_dashboards_nodePort" {
   type        = number
   description = "Node port for OpenSearch's Dashboards"
   default     = 32701
+}
+
+variable "fluentbit_name" {
+  type    = string
+  default = "fluent-bit"
+}
+
+variable "fluentbit_port" {
+  type        = number
+  description = "Container port for Fluent-bit"
+  default     = 2020
 }
