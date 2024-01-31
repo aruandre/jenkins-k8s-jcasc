@@ -11,7 +11,9 @@ resource "helm_release" "prometheus" {
   version    = var.prometheus_chart_version
   namespace  = kubernetes_namespace.monitoring.id
   values = [
-    "${file("${path.module}/templates/prometheus/prometheus.yml")}"
+    templatefile("${path.root}/templates/monitoring/prometheus/prometheus.tpl", {
+      nodePort = var.prometheus_nodePort
+    })
   ]
 }
 
@@ -22,7 +24,10 @@ resource "helm_release" "grafana" {
   version    = var.grafana_chart_version
   namespace  = kubernetes_namespace.monitoring.id
   values = [
-    "${file("${path.module}/templates/grafana/grafana.yml")}"
+    templatefile("${path.root}/templates/monitoring/grafana/grafana.tpl", {
+      nodePort          = var.grafana_nodePort,
+      prometheusVersion = var.prometheus_chart_version
+    })
   ]
 }
 
@@ -35,7 +40,7 @@ resource "kubernetes_config_map" "k8s-dashboard" {
     }
   }
   data = {
-    "k8s.json" = "${file("${path.module}/templates/grafana/dashboards/k8s.json")}"
+    "k8s.json" = "${file("${path.module}/templates/monitoring/grafana/dashboards/k8s.json")}"
   }
 }
 
@@ -48,6 +53,6 @@ resource "kubernetes_config_map" "jenkins-dashboard" {
     }
   }
   data = {
-    "jenkins.json" = "${file("${path.module}/templates/grafana/dashboards/jenkins.json")}"
+    "jenkins.json" = "${file("${path.module}/templates/monitoring/grafana/dashboards/jenkins.json")}"
   }
 }

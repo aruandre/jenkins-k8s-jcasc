@@ -4,7 +4,7 @@ service:
   name: service
   type: NodePort
   port: 80
-  nodePort: 32000
+  nodePort: ${nodePort}
 
 datasources:
   datasources.yaml:
@@ -18,7 +18,7 @@ datasources:
         httpMethod: POST
         manageAlerts: true
         prometheusType: Prometheus
-        prometheusVersion: 25.8.2
+        prometheusVersion: ${prometheusVersion}
         cacheLevel: Low
 
 sidecar:

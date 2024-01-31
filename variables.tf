@@ -7,7 +7,7 @@ variable "kube_config" {
 variable "helm_timeout" {
   type        = number
   description = "Helm release timeout"
-  default     = 600
+  default     = 900
 }
 
 # Jenkins
@@ -21,6 +21,12 @@ variable "jenkins_chart_version" {
   type        = string
   description = "Jenkins chart version"
   default     = "4.9.1"
+}
+
+variable "jenkins_nodePort" {
+  type        = number
+  description = "Node port for Jenkins"
+  default     = 30000
 }
 
 # Monitoring
@@ -40,6 +46,18 @@ variable "grafana_chart_version" {
   type        = string
   description = "Grafana chart version"
   default     = "7.0.17"
+}
+
+variable "prometheus_nodePort" {
+  type        = number
+  description = "Node port for Prometheus"
+  default     = 31000
+}
+
+variable "grafana_nodePort" {
+  type        = number
+  description = "Node port for Grafana"
+  default     = 32000
 }
 
 # Logging

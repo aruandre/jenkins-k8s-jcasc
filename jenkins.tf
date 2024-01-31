@@ -11,7 +11,9 @@ resource "helm_release" "jenkins" {
   version    = var.jenkins_chart_version
   namespace  = kubernetes_namespace.jenkins.id
   values = [
-    "${file("${path.module}/templates/jenkins/jenkins.yml")}"
+    templatefile("${path.root}/templates/jenkins/jenkins.tpl", {
+      nodePort = var.jenkins_nodePort
+    })
   ]
 }
 

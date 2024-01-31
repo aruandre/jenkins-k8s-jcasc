@@ -1,7 +1,7 @@
 server:
   service:
     type: NodePort
-    nodePort: 31000
+    nodePort: ${nodePort}
 
   global:
     evaluation_interval: 1m

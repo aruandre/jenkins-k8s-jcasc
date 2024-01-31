@@ -1,6 +1,6 @@
 controller:
   serviceType: NodePort
-  nodePort: 30000
+  nodePort: ${nodePort}
   #jenkinsUrl: http://192.168.105.9:30000
   # jenkinsUrlProtocol: https
   # serviceType: LoadBalancer
